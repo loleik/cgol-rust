@@ -1,3 +1,5 @@
+use std::{thread, time};
+
 const OFFSETS: [(isize, isize); 8] = [
     (-1, -1), (0, -1), (1, -1),
     (-1, 0),           (1, 0),
@@ -86,15 +88,16 @@ fn tick(world: &mut World) {
 }
 
 fn main() {
-    println!("Right now this just demonstrates on a 10x10 grid with a terminal visualization.");
-
     let mut world: World = init();
 
-    view(&world);
+    for _ in 0..12 {
+        print!("{esc}[2J{esc}[1;1H", esc = 27 as char);
 
-    tick(&mut world);
+        view(&world);
 
-    println!();
+        tick(&mut world);
 
-    view(&world);
+        let wait: time::Duration = time::Duration::from_secs(1);
+        thread::sleep(wait);
+    }
 }
