@@ -22,28 +22,68 @@ impl World {
     }
 }
 
-// Initialize a world structure using an initial pattern. Hard coded for now.
-fn init() -> World{
-    let initial: Vec<bool> = vec![
-        false, false, false, false, false, false, false, false, false, false, false,
-        false, false, false, false, false, true, false, true, true, false, false,
-        false, false, false, false, true, false, false, false, false, false, false,
-        false, false, false, true, true, false, false, false, true, false, false,
-        true, true, false, true, false, false, false, false, false, true, false,
-        true, true, false, true, false, false, false, false, false, true, false,
-        false, false, false, true, true, false, false, false, true, false, false,
-        false, false, false, false, true, false, false, false, false, false, false,
-        false, false, false, false, false, true, false, true, true, false, false,
-        false, false, false, false, false, false, false, false, false, false, false,
-    ];
+fn place_pattern(
+    map: &mut Vec<bool>,
+    map_width: usize,
+    pattern: &Vec<bool>,
+    pattern_width: usize,
+    pattern_height: usize,
+    offset: (usize, usize),
+) {
+    let (ox, oy) = offset;
 
-    let world = World::new(11, 10, initial);
+    for y in 0..pattern_height {
+        for x in 0..pattern_width {
+            let board_x = ox + x;
+            let board_y = oy + y;
+
+            // make sure we don't go out of bounds
+            if board_x < map_width && board_y < map.len() / map_width {
+                let board_idx = board_y * map_width + board_x;
+                let pattern_idx = y * pattern_width + x;
+                map[board_idx] = pattern[pattern_idx];
+            }
+        }
+    }
+}
+
+// Initialize a world structure using an initial pattern. Hard coded for now.
+fn init(
+    height: usize, 
+    width: usize
+) -> World{
+    // Hardcoded example with the start co-ordinate.
+    let copperhead: (Vec<bool>, (usize, usize)) = (vec![
+        false, false, false, false, false, true, false, true, true, false, false, false,
+        false, false, false, false, true, false, false, false, false, false, false, true,
+        false, false, false, true, true, false, false, false, true, false, false, true,
+        true, true, false, true, false, false, false, false, false, true, true, false,
+        true, true, false, true, false, false, false, false, false, true, true, false,
+        false, false, false, true, true, false, false, false, true, false, false, true,
+        false, false, false, false, true, false, false, false, false, false, false, true,
+        false, false, false, false, false, true, false, true, true, false, false, false,
+    ], (1, 6));
+
+    let mut initial: Vec<bool> = vec![false; width * height];
+
+    place_pattern(
+        &mut initial, 
+        width, 
+        &copperhead.0, 
+        12, 
+        8, 
+        copperhead.1
+    );
+
+    let world: World = World::new(width, height, initial);
 
     world
 }
 
 // For viewing the world at each tick.
-fn view(world: &World) {
+fn view(
+    world: &World
+) {
     for y in 0..world.height {
         for x in 0..world.width {
             let i = y * world.width + x;
@@ -54,7 +94,11 @@ fn view(world: &World) {
 }
 
 // Uses offset values to check how many neighbors each cell has.
-fn check_neighbors(world: &World, x: usize, y: usize) -> usize {
+fn check_neighbors(
+    world: &World, 
+    x: usize, 
+    y: usize
+) -> usize {
     let mut count: usize = 0;
 
     for (ox, oy) in OFFSETS {
@@ -73,7 +117,9 @@ fn check_neighbors(world: &World, x: usize, y: usize) -> usize {
 
 // Uses check_neighbors and acts accordingly depending on the result.
 // Doesn't mutate the current world until the end of the tick, this is the double buffering mentioned earlier.
-fn tick(world: &mut World) {
+fn tick(
+    world: &mut World
+) {
     for i in 0..world.current.len() {
         let x: usize = i % world.width;
         let y: usize = i / world.width;
@@ -93,16 +139,16 @@ fn tick(world: &mut World) {
 }
 
 fn main() {
-    let mut world: World = init();
+    let mut world: World = init(20, 40);
 
-    for _ in 0..20 {
+    for _ in 0..250 {
         print!("{esc}[2J{esc}[1;1H", esc = 27 as char);
 
         view(&world);
 
         tick(&mut world);
 
-        let wait: time::Duration = time::Duration::from_secs(1);
+        let wait: time::Duration = time::Duration::from_millis(250);
         thread::sleep(wait);
     }
 }
