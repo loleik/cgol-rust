@@ -1,11 +1,13 @@
 use std::{thread, time};
 
+// Offsets used for checking neighbors.
 const OFFSETS: [(isize, isize); 8] = [
     (-1, -1), (0, -1), (1, -1),
     (-1, 0),           (1, 0),
     (-1, 1),  (0, 1),  (1, 1)
 ];
 
+// Struct for tracking the world. Uses double buffering to keep with the original rules.
 #[derive(Clone)]
 struct World {
     width: usize,
@@ -20,9 +22,8 @@ impl World {
     }
 }
 
-// For now everything assumes a 10x10 grid. Obviously that will change later to be variable I hope.
+// Initialize a world structure using an initial pattern. Hard coded for now.
 fn init() -> World{
-    // Crude definition of an initial pattern for testing.
     let initial: Vec<bool> = vec![
         false, false, false, false, false, false, false, false, false, false,
         false, false, false, false, true, false, false, false, false, false,
@@ -41,6 +42,7 @@ fn init() -> World{
     world
 }
 
+// For viewing the world at each tick.
 fn view(world: &World) {
     for y in 0..world.height {
         for x in 0..world.width {
@@ -51,6 +53,7 @@ fn view(world: &World) {
     }
 }
 
+// Uses offset values to check how many neighbors each cell has.
 fn check_neighbors(world: &World, x: usize, y: usize) -> usize {
     let mut count: usize = 0;
 
@@ -68,6 +71,8 @@ fn check_neighbors(world: &World, x: usize, y: usize) -> usize {
     count
 }
 
+// Uses check_neighbors and acts accordingly depending on the result.
+// Doesn't mutate the current world until the end of the tick, this is the double buffering mentioned earlier.
 fn tick(world: &mut World) {
     for i in 0..world.current.len() {
         let x: usize = i % world.width;
