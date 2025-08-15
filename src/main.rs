@@ -1,4 +1,6 @@
 use std::{thread, time};
+use clap::{arg, Command};
+use std::collections::HashMap;
 
 // Offsets used for checking neighbors.
 const OFFSETS: [(isize, isize); 8] = [
@@ -21,6 +23,21 @@ impl World {
         return World { width: width, height: height, current: map.clone(), next: map}
     }
 }
+
+fn cli() -> Command {
+    Command::new("cgol-rust")
+        .about("A rust implementation of Conway's Game of Life.")
+        .subcommand_required(true)
+        .arg_required_else_help(true)
+        .allow_external_subcommands(true)
+        .subcommand(
+            Command::new("pattern")
+                .about("Specify a starting pattern from [\"copperhead\"]")
+                .arg(arg!(<NAME> "The name of the pattern"))
+                .arg_required_else_help(true),
+        )
+}
+
 
 fn place_pattern(
     map: &mut Vec<bool>,
@@ -50,7 +67,8 @@ fn place_pattern(
 // Initialize a world structure using an initial pattern. Hard coded for now.
 fn init(
     height: usize, 
-    width: usize
+    width: usize,
+    name: &str
 ) -> World{
     // Hardcoded example with the start co-ordinate.
     let copperhead: (Vec<bool>, (usize, usize), usize, usize) = (vec![
@@ -64,15 +82,19 @@ fn init(
         false, false, false, false, false, true, false, true, true, false, false, false,
     ], (1, 6), 12, 8);
 
+    let patterns: HashMap<&'static str, (Vec<bool>, (usize, usize), usize, usize)> = HashMap::from([
+        ("copperhead", copperhead)
+    ]);
+
     let mut initial: Vec<bool> = vec![false; width * height];
 
     place_pattern(
         &mut initial, 
         width, 
-        &copperhead.0, 
-        copperhead.2, 
-        copperhead.3, 
-        copperhead.1
+        &patterns.get(name).unwrap().0, 
+        patterns.get(name).unwrap().2, 
+        patterns.get(name).unwrap().3, 
+        patterns.get(name).unwrap().1
     );
 
     let world: World = World::new(width, height, initial);
@@ -139,16 +161,27 @@ fn tick(
 }
 
 fn main() {
-    let mut world: World = init(20, 40);
+    let matches: clap::ArgMatches = cli().get_matches();
 
-    for _ in 0..250 {
-        print!("{esc}[2J{esc}[1;1H", esc = 27 as char);
+    match matches.subcommand() {
+        Some(("pattern", sub_matches)) => {
+            let name: &String = sub_matches.get_one::<String>("NAME").expect("Required");
 
-        view(&world);
+            let mut world: World = init(20, 40, &name);
 
-        tick(&mut world);
+            for i in 0..200 {
+                print!("{esc}[2J{esc}[1;1H", esc = 27 as char);
+        
+                view(&world);
 
-        let wait: time::Duration = time::Duration::from_millis(250);
-        thread::sleep(wait);
+                println!("Running: {name} | Tick: {i}");
+        
+                tick(&mut world);
+        
+                let wait: time::Duration = time::Duration::from_millis(250);
+                thread::sleep(wait);
+            }
+        }
+        _ => {},
     }
 }
