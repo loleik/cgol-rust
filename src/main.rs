@@ -53,7 +53,7 @@ fn init(
     width: usize
 ) -> World{
     // Hardcoded example with the start co-ordinate.
-    let copperhead: (Vec<bool>, (usize, usize)) = (vec![
+    let copperhead: (Vec<bool>, (usize, usize), usize, usize) = (vec![
         false, false, false, false, false, true, false, true, true, false, false, false,
         false, false, false, false, true, false, false, false, false, false, false, true,
         false, false, false, true, true, false, false, false, true, false, false, true,
@@ -62,7 +62,7 @@ fn init(
         false, false, false, true, true, false, false, false, true, false, false, true,
         false, false, false, false, true, false, false, false, false, false, false, true,
         false, false, false, false, false, true, false, true, true, false, false, false,
-    ], (1, 6));
+    ], (1, 6), 12, 8);
 
     let mut initial: Vec<bool> = vec![false; width * height];
 
@@ -70,8 +70,8 @@ fn init(
         &mut initial, 
         width, 
         &copperhead.0, 
-        12, 
-        8, 
+        copperhead.2, 
+        copperhead.3, 
         copperhead.1
     );
 
