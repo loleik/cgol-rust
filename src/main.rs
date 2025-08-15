@@ -1,12 +1,20 @@
+const OFFSETS: [(isize, isize); 8] = [
+    (-1, -1), (0, -1), (1, -1),
+    (-1, 0),           (1, 0),
+    (-1, 1),  (0, 1),  (1, 1)
+];
+
+#[derive(Clone)]
 struct World {
     width: usize,
     height: usize,
-    map: Vec<bool>
+    current: Vec<bool>,
+    next: Vec<bool>
 }
 
 impl World {
     fn new(width: usize, height: usize, map: Vec<bool>) -> World {
-        return World { width: width, height: height, map: map}
+        return World { width: width, height: height, current: map.clone(), next: map}
     }
 }
 
@@ -35,20 +43,58 @@ fn view(world: &World) {
     for y in 0..world.height {
         for x in 0..world.width {
             let i = y * world.width + x;
-            if world.map[i] {
-                print!(" ■ ");
-            } else {
-                print!(" □ ");
-            }
+            print!("{}", if world.current[i] { " ■ " } else { " □ " })
         }
         println!();
     }
 }
 
+fn check_neighbors(world: &World, x: usize, y: usize) -> usize {
+    let mut count: usize = 0;
+
+    for (ox, oy) in OFFSETS {
+        let cx: isize = x as isize + ox;
+        let cy: isize = y as isize + oy;
+
+        if cx >= 0 && cx < world.width as isize && cy >= 0 && cy < world.height as isize {
+            let index: usize = cy as usize * world.width + cx as usize;
+
+            if world.current[index] { count += 1 }
+        }
+    }
+
+    count
+}
+
+fn tick(world: &mut World) {
+    for i in 0..world.current.len() {
+        let x: usize = i % world.width;
+        let y: usize = i / world.width;
+
+        let count: usize = check_neighbors(world, x, y);
+
+        match (world.current[i], count) {
+            (true, 0) | (true, 1) => { world.next[i] = false }, // underpopulation
+            (true, 2) | (true, 3) => {}, // unchanged
+            (true, _) => { world.next[i] = false }, // overpopulation
+            (false, 3) => { world.next[i] = true }, // reproduction
+            (_, _) => {}
+        }
+    }
+
+    world.current.copy_from_slice(&world.next);
+}
+
 fn main() {
     println!("Right now this just demonstrates on a 10x10 grid with a terminal visualization.");
 
-    let world: World = init();
+    let mut world: World = init();
+
+    view(&world);
+
+    tick(&mut world);
+
+    println!();
 
     view(&world);
 }
