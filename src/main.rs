@@ -25,19 +25,19 @@ impl World {
 // Initialize a world structure using an initial pattern. Hard coded for now.
 fn init() -> World{
     let initial: Vec<bool> = vec![
-        false, false, false, false, false, false, false, false, false, false,
-        false, false, false, false, true, false, false, false, false, false,
-        false, false, false, true, true, true, false, false, false, false,
-        false, false, false, false, true, false, false, false, false, false,
-        false, false, false, false, false, false, false, false, false, false,
-        false, false, false, false, false, false, false, false, false, false,
-        false, false, false, false, true, false, false, false, false, false,
-        false, false, false, true, true, true, false, false, false, false,
-        false, false, false, false, true, false, false, false, false, false,
-        false, false, false, false, false, false, false, false, false, false,
+        false, false, false, false, false, false, false, false, false, false, false,
+        false, false, false, false, false, true, false, true, true, false, false,
+        false, false, false, false, true, false, false, false, false, false, false,
+        false, false, false, true, true, false, false, false, true, false, false,
+        true, true, false, true, false, false, false, false, false, true, false,
+        true, true, false, true, false, false, false, false, false, true, false,
+        false, false, false, true, true, false, false, false, true, false, false,
+        false, false, false, false, true, false, false, false, false, false, false,
+        false, false, false, false, false, true, false, true, true, false, false,
+        false, false, false, false, false, false, false, false, false, false, false,
     ];
 
-    let world = World::new(10, 10, initial);
+    let world = World::new(11, 10, initial);
 
     world
 }
@@ -95,7 +95,7 @@ fn tick(world: &mut World) {
 fn main() {
     let mut world: World = init();
 
-    for _ in 0..12 {
+    for _ in 0..20 {
         print!("{esc}[2J{esc}[1;1H", esc = 27 as char);
 
         view(&world);
