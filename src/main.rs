@@ -43,9 +43,13 @@ fn cli() -> Command {
         .allow_external_subcommands(true)
         .subcommand(
             Command::new("pattern")
-                .about("Specify a starting pattern to run")
+                .about("Run the simulation with a specified pattern")
                 .arg(arg!(<PATTERN> "Starting pattern e.g.[(0, 1),(1, 1),(2, 1)]"))
-                .arg_required_else_help(true),
+                .arg_required_else_help(true)
+                .arg(arg!(<HEIGHT> "Viewport height"))
+                .arg_required_else_help(true)
+                .arg(arg!(<WIDTH> "Viewport width"))
+                .arg_required_else_help(true)
         )
 }
 
@@ -146,6 +150,16 @@ fn main() -> Result<(), ()> {
             let pattern: &String = sub_matches.get_one::<String>("PATTERN")
                     .expect("Required");
 
+            let height: usize = sub_matches.get_one::<String>("HEIGHT")
+                    .expect("Required")
+                    .parse::<usize>()
+                    .expect("Not an integer");
+
+            let width: usize = sub_matches.get_one::<String>("WIDTH")
+                    .expect("Required")
+                    .parse::<usize>()
+                    .expect("Not an integer");
+
             let validate = Regex::new(r"^\[\(\d+,\d+\)(?:,\(\d+,\d+\))*\]$").unwrap();
 
             if !validate.is_match(pattern) {
@@ -154,7 +168,7 @@ fn main() -> Result<(), ()> {
                 return Ok(())
             }
 
-            let mut world: World = init(5, 5, &pattern);
+            let mut world: World = init(height, width, &pattern);
 
             for i in 0..50 {
                 print!("{esc}[2J{esc}[1;1H", esc = 27 as char);
