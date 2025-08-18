@@ -170,30 +170,30 @@ fn main() -> Result<(), ()> {
 
             let mut world: World = init(height, width, &pattern);
 
-            let (mut min_x, mut min_y) = (isize::MAX, isize::MAX);
-            let (mut max_x, mut max_y) = (isize::MIN, isize::MIN);
-            
-            for &(x, y) in &world.current {
-                if x < min_x { min_x = x }
-                if x > max_x { max_x = x }
-                if y < min_y { min_y = y }
-                if y > max_y { max_y = y }
-            }
-
-            let center: (isize, isize) = (
-                (min_x + max_x) / 2,
-                (min_y + max_y) / 2
-            );
-
-            let o_x: isize = center.0 - (width as isize) / 2;
-            let o_y: isize = center.1 - (height as isize) / 2;
-
-            for i in 0..50 {
+            for i in 0..51 {
                 print!("{esc}[2J{esc}[1;1H", esc = 27 as char);
+
+                let (mut min_x, mut min_y) = (isize::MAX, isize::MAX);
+                let (mut max_x, mut max_y) = (isize::MIN, isize::MIN);
+                
+                for &(x, y) in &world.current {
+                    if x < min_x { min_x = x }
+                    if x > max_x { max_x = x }
+                    if y < min_y { min_y = y }
+                    if y > max_y { max_y = y }
+                }
+    
+                let center: (isize, isize) = (
+                    (min_x + max_x) / 2,
+                    (min_y + max_y) / 2
+                );
+    
+                let o_x: isize = center.0 - (width as isize) / 2;
+                let o_y: isize = center.1 - (height as isize) / 2;
         
                 view(o_x, o_y, &world);
 
-                println!("Running: {pattern} | Tick: {i}");
+                println!("Running: {pattern} | Tick: {i} | Pattern center: {center:?}");
 
                 tick(&mut world);
 
