@@ -70,11 +70,15 @@ fn init(
 
 // For viewing the world at each tick.
 fn view(
+    o_x: isize,
+    o_y: isize,
     world: &World
 ) {
     for y in 0..world.height {
         for x in 0..world.width {
-            if world.current.contains(&(x.try_into().unwrap(), y.try_into().unwrap())) {
+            if world.current.contains(
+                &(x as isize + o_x, y as isize + o_y)
+            ) {
                 print!("■ ");
             } else {
                 print!("□ ");
@@ -150,12 +154,12 @@ fn main() -> Result<(), ()> {
                 return Ok(())
             }
 
-            let mut world: World = init(3, 3, &pattern);
+            let mut world: World = init(5, 5, &pattern);
 
             for i in 0..50 {
                 print!("{esc}[2J{esc}[1;1H", esc = 27 as char);
         
-                view(&world);
+                view(-1, -1, &world);
 
                 println!("Running: {pattern} | Tick: {i}");
 
