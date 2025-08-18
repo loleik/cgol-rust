@@ -1,4 +1,8 @@
 # cgol-rust
-A Rust implementation of Conway's Game of Life intended to live as a WASM demo on my website.
+Terminal based demo version of Conway's Game of Life, written in rust. This will be used as a base for a WASM implementation, which is intended to be put on my website.
 
-Currently It works as a small demonstration with a hard coded starting pattern. It matches the output gotten from [here](https://conwaylife.com/) so far.
+## Usage
+Run using `cargo run -- pattern <PATTERN> <HEIGHT> <WIDTH>` or build and run `./cgol-rust run <PATTERN> <HEIGHT> <WIDTH>`:
+
++ `PATTERN` a list of co-ordinates in the form `[(x1,y1),(x2,y2),...(xn,yn)]`.
++ `HEIGHT`, `WIDTH` the integer height and width of the viewport.
