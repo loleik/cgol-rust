@@ -14,5 +14,9 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+    - name: Run tests
+      run: cargo test --verbose
     - name: Build the Docker image
       run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
+    - name: Test Docker image
+      run: docker run --rm my-image-name:latest test
