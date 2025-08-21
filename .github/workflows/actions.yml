@@ -17,6 +17,6 @@ jobs:
     - name: Run tests
       run: cargo test --verbose
     - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
+      run: docker build . --file Dockerfile --tag cgol-rust-docker:$(date +%s)
     - name: Test Docker image
-      run: docker run --rm my-image-name:latest test
+      run: docker run --rm my-cgol-rust-docker:latest test
