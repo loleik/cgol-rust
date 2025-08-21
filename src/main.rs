@@ -51,6 +51,10 @@ fn cli() -> Command {
                 .arg(arg!(<WIDTH> "Viewport width"))
                 .arg_required_else_help(true)
         )
+        .subcommand(
+            Command::new("test")
+            .about("Test the simulation using a set glider pattern")
+        )
 }
 
 // Initialize a world structure using an initial pattern. Hard coded for now.
@@ -59,7 +63,7 @@ fn init(
     width: usize,
     pattern: &str
 ) -> World {    
-    let extract = Regex::new(r"\((\d+),(\d+)\)").unwrap();
+    let extract: Regex = Regex::new(r"\((\d+),(\d+)\)").unwrap();
 
     let coords: HashSet<(isize, isize)> = extract.captures_iter(pattern)
                     .map(|cap| {(
@@ -142,6 +146,18 @@ fn tick(
     world.neighbors = HashMap::new();
 }
 
+fn test_endpoint() -> World {
+    let pattern: String = "[(1,0),(2,1),(0,2),(1,2),(2,2)]".to_string();
+
+    let mut world: World = init(0, 0, &pattern);
+
+    for _ in 0..26 {
+        tick(&mut world);
+    }
+
+    world
+}
+
 fn main() -> Result<(), ()> {
     let matches: clap::ArgMatches = cli().get_matches();
 
@@ -170,7 +186,7 @@ fn main() -> Result<(), ()> {
 
             let mut world: World = init(height, width, &pattern);
 
-            for i in 0..51 {
+            for i in 0..26 {
                 print!("{esc}[2J{esc}[1;1H", esc = 27 as char);
 
                 let (mut min_x, mut min_y) = (isize::MAX, isize::MAX);
@@ -200,9 +216,33 @@ fn main() -> Result<(), ()> {
                 let wait: time::Duration = time::Duration::from_millis(250);
                 thread::sleep(wait);
             }
+            println!("{:?}", world.current);
+        },
+        Some(("test", _sub_matches)) => {
+            let output: HashSet<(isize, isize)> = test_endpoint().current;
+            let expected: HashSet<(isize, isize)> = HashSet::from(
+                [(8, 7), (7, 9), (8, 9), (8, 8), (6, 8)]
+            );
+
+            assert_eq!(output, expected);
+            println!("Success!");
         },
         _ => println!("Invalid subcommand: {}", matches.subcommand().unwrap().0)
     }
 
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn glider_test() {
+        let output: HashSet<(isize, isize)> = test_endpoint().current;
+        let expected: HashSet<(isize, isize)> = HashSet::from(
+            [(8, 7), (7, 9), (8, 9), (8, 8), (6, 8)]
+        );
+        assert_eq!(output, expected);
+    }
 }
